@@ -1,26 +1,25 @@
 import discord
-import logging
+from discord.ext import commands
+import os
+
+print(f"[DEBUG] Version Pycord: {discord.__version__}")
+print(f"[DEBUG] app_commands dispo ? {'app_commands' in dir(discord)}")
 
 intents = discord.Intents.default()
+bot = commands.Bot(command_prefix="!", intents=intents)
 
-client = discord.Client(intents=intents)
-
-@client.event
+@bot.event
 async def on_ready():
-    print(f"✅ Connecté en tant que {client.user} (ID: {client.user.id})")
+    print(f"Connecté en tant que {bot.user}")
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
+tree = bot.tree
 
-    if message.content == "!ping":
-        await message.channel.send("🏓 Pong !")
+@tree.command(name="ping", description="Répond avec pong !")
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message("Pong !")
 
-if __name__ == "__main__":
-    import os
-    logging.basicConfig(level=logging.INFO)
-    TOKEN = os.getenv("DISCORD_TOKEN")
-    if not TOKEN:
-        raise ValueError("Le token Discord n'est pas défini dans les variables d'environnement.")
-    client.run(TOKEN)
+TOKEN = os.getenv("DISCORD_TOKEN")
+if not TOKEN:
+    raise ValueError("⚠️ Le token Discord est manquant dans les variables d'environnement !")
+
+bot.run(TOKEN)
